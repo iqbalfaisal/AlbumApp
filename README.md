@@ -8,14 +8,20 @@ or
 ```shell
 yarn
 ```
-##### Quick Start
-```shell
-npm install
-```
+
 ##### iOS Setup
 
 ```shell
 cd ios && pod update && cd ..
 ```
 
+## How to run
+for Android
+```shell
+npx react-native run-android
+```
+for iOS
+```shell
+npx react-native run-ios
+```
 
