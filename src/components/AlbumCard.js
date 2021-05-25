@@ -1,18 +1,29 @@
-import _ from 'lodash';
 import React, {useState} from 'react';
-import {StyleSheet, Image, Text, View} from 'react-native';
+import {StyleSheet, Image, Text, View, TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {find} from 'lodash';
+
 import {Users, Photos} from '../data';
 
 export default function AlbumCard({data: {userId, id, title}}) {
-  let {username, email, website} = _.find(Users, {id: userId});
-  let {thumbnailUrl} = _.find(Photos, {albumId: id});
+  const navigation = useNavigation();
+
+  let {username, email, website} = find(Users, {id: userId});
+  let photo_detail = find(Photos, {albumId: id});
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={() =>
+        navigation.navigate('ViewerScreen', {
+          albumTitle: title,
+          ...photo_detail,
+        })
+      }>
       <Image
         style={styles.thumbnail}
         source={{
-          uri: thumbnailUrl,
+          uri: photo_detail.thumbnailUrl,
         }}
       />
       <View style={styles.userDetails}>
@@ -21,7 +32,7 @@ export default function AlbumCard({data: {userId, id, title}}) {
         <Text>Email: {email}</Text>
         <Text>Website: {website}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
