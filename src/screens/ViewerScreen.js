@@ -7,35 +7,64 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import {filter} from 'lodash';
+import {filter, findIndex} from 'lodash';
 
 import {Photos} from '../data';
 
 export default function ViewerScreen({navigation, route}) {
   const [current, setCurrent] = useState(route.params);
+
   const [albumTitle] = useState(route.params.albumTitle);
 
   const [albums] = useState(filter(Photos, {albumId: current.albumId}));
+  const [index, setIndex] = useState(findIndex(albums, {id: current.id}));
 
   const {title, thumbnailUrl} = current;
 
   useEffect(() => {}, []);
+
+  const swipeForward = () => {
+    if (index == albums.length - 1) {
+      setCurrent(albums[0]);
+      setIndex(0);
+    } else {
+      setCurrent(albums[index + 1]);
+      setIndex(index + 1);
+    }
+  };
+  const swipeBackward = () => {
+    if (index == 0) {
+      setCurrent(albums[albums.length - 1]);
+      setIndex(albums.length - 1);
+    } else {
+      setCurrent(albums[index - 1]);
+      setIndex(index - 1);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.topView}>
         <Text style={styles.title}>{albumTitle}</Text>
         <View style={styles.imageContainer}>
-          <Text style={styles.title}>back</Text>
+          <TouchableOpacity
+            style={styles.buttonContainer}
+            onPress={() => swipeBackward()}>
+            <Text style={styles.title}>back</Text>
+          </TouchableOpacity>
           <Image
             style={styles.thumbnail}
             source={{
               uri: thumbnailUrl,
             }}
           />
-          <Text style={styles.title}>next</Text>
+          <TouchableOpacity
+            style={styles.buttonContainer}
+            onPress={() => swipeForward()}>
+            <Text style={styles.title}>next</Text>
+          </TouchableOpacity>
         </View>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={[{flex: 1}, styles.title]}>{title}</Text>
       </View>
 
       <FlatList
@@ -43,6 +72,10 @@ export default function ViewerScreen({navigation, route}) {
         data={albums}
         renderItem={({item, index}) => (
           <TouchableOpacity
+            onPress={() => {
+              setCurrent(item);
+              setIndex(index);
+            }}
             style={[
               styles.logoContainer,
               {borderWidth: item.id == current.id ? 3 : 0},
@@ -67,7 +100,13 @@ const styles = StyleSheet.create({
   bottomView: {flex: 1, flexDirection: 'column'},
 
   imageContainer: {flex: 3, flexDirection: 'row'},
-  logoContainer: {flex: 1, padding: 5},
+  logoContainer: {flex: 1 / 3, padding: 5},
+  buttonContainer: {
+    flex: 1,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
   logo: {
     width: 120,
@@ -81,7 +120,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    flex: 1,
+    // flex: 1,
     alignSelf: 'center',
     textAlign: 'center',
   },
